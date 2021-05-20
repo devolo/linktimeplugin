@@ -1,6 +1,6 @@
 # Link-Time Plug-In Management
 
-C++17 header-only library for registration and management of link-time plug-ins.
+C++11 header-only library for registration and management of link-time plug-ins.
 
 ## What is it?
 
