@@ -49,6 +49,13 @@ namespace linktimeplugin {
             // it.
         }
 
+        // Rule of 5
+        virtual ~RegistrarBase() = default;
+        RegistrarBase(const RegistrarBase&) = delete;
+        RegistrarBase(RegistrarBase&&) = delete;
+        void operator=(const RegistrarBase&) = delete;
+        void operator=(RegistrarBase&&) = delete;
+
         // Implemented by the derived registrar class.
         virtual BASE& operator()() = 0;
 
