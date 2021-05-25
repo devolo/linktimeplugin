@@ -1,14 +1,15 @@
 /**
  * @brief Link-time plug-in management
- * @version 1.0.0
+ * @version 1.0.1
  * @author Wolfram Rösler
  * @date 2018-06-25
+ * change:
+ * 2021-05-25: registrars vector to static and added iterator interface (janos.vaczi@gmail.com)
  * @copyright MIT license
  */
 
 #pragma once
 
-#include <memory>
 #include <vector>
 
 /**
@@ -25,6 +26,8 @@
  *  5. To retrieve a list of all plug-ins, invoke linktimeplugin::plugins<x>(),
  *     where x is the name of the plug-in base class. This function
  *     returns a pointer to an instance of every plug-in class.
+ *  6. Alternatively iterate the RegistrarBase objects with begin()/end() iterators.
+ *     Don't forget to downcast like (*it)()
  */
 namespace linktimeplugin {
     /*
@@ -36,17 +39,8 @@ namespace linktimeplugin {
     class RegistrarBase {
     public:
         // Ctor. Adds this object to the list of registrars.
-        RegistrarBase() noexcept try {
-            if (!registrars_) {
-                registrars_.reset(new std::vector<RegistrarBase<BASE>*>);
-            }
-            registrars_->push_back(this);
-        } catch(...) {
-            // Probably out-of-memory or similar.
-            // There's nothing we can do, but we don't let the
-            // exception escape b/c we're initializing a global
-            // static object, and there's no other way to catch
-            // it.
+        RegistrarBase() noexcept {
+            registrars().push_back(this);
         }
 
         // Rule of 5
@@ -59,31 +53,32 @@ namespace linktimeplugin {
         // Implemented by the derived registrar class.
         virtual BASE& operator()() = 0;
 
+        typedef std::vector<BASE*> PluginColl;
+        typedef std::vector<RegistrarBase<BASE>*> RegistarColl;
+        
         // Returns all registrars.
-        static std::vector<BASE*> plugins() {
-            std::vector<BASE*> ret;
-
-            if (registrars_) {
-                for(auto r : *registrars_) {
-                    ret.push_back(&(*r)());
-                }
+        static PluginColl plugins() {
+            PluginColl ret;
+            for(auto r : registrars()) {
+                ret.push_back(&(*r)());
             }
-
             return ret;
         }
-
+        // Use (*begin())() to get BASE object!
+        static auto begin() {
+            return registrars().begin();
+        }
+        
+        static auto end() {
+            return registrars().end();
+        }
+        
     private:
-        // Pointers to the registrar objects (one per registered
-        // plug-in class).
-        static std::unique_ptr<std::vector<RegistrarBase<BASE>*>>registrars_;
+        static RegistarColl& registrars() {
+            static RegistarColl regs;
+            return regs;
+        }
     };
-
-    /*
-     * Static member of the registrar base class.
-     * BASE is the plug-in base class.
-     */
-    template<typename BASE>
-    std::unique_ptr<std::vector<RegistrarBase<BASE>*>> RegistrarBase<BASE>::registrars_;
 
     /*
      * Derived registrar class.

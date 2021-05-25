@@ -3,11 +3,14 @@
  * @version 1.0.0
  * @author Wolfram Rösler
  * @date 2018-06-25
+ * change:
+ * 2021-05-25: exercise iterator interface (janos.vaczi@gmail.com)
  * @copyright MIT license
  */
 
 #include <iostream>
 #include <string>
+#include <algorithm>
 #include "linktimeplugin.hpp"
 
 namespace {
@@ -77,6 +80,14 @@ int main() {
     for (const auto animal : linktimeplugin::plugins<PluginBase>()) {
         std::cout << animal->name() << ": " << animal->sound() << '\n';
     }
-
+    std::cout << "again with iterators\n";
+    std::for_each(
+        linktimeplugin::RegistrarBase<PluginBase>::begin(),
+        linktimeplugin::RegistrarBase<PluginBase>::end(),
+        [](const auto x) {
+            // Notice the downcast with function operator!
+            std::cout << (*x)().name() << ": " << (*x)().sound() << '\n';
+        });
+    
     return EXIT_SUCCESS;
 }
