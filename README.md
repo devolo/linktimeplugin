@@ -130,7 +130,13 @@ namespace {
 for (const auto plugin : linktimeplugin::plugins<PluginBase>()) {
     plugin->dosomething();
 }
-
+// OR
+std::for_each(
+        linktimeplugin::RegistrarBase<PluginBase>::begin(),
+        linktimeplugin::RegistrarBase<PluginBase>::end(),
+        [](const auto x) {
+            (*x)().dosomething();
+        });
 ```
 
 Complete example: `main.cpp`. To build and run the example program:
