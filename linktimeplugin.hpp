@@ -1,6 +1,6 @@
 /**
  * @brief Link-time plug-in management
- * @version 1.0.0
+ * @version 1.0.1
  * @author Wolfram Rösler
  * @date 2018-06-25
  * @copyright MIT license
@@ -29,24 +29,20 @@
 namespace linktimeplugin {
     /*
      * Base class for plug-in registrars. A registrar is an intermediate
-     * class that manages the registration of one plug-inclass (which
+     * class that manages the registration of one plug-in class (which
      * is derived from the common plug-in base class).
      */
     template<typename BASE>
     class RegistrarBase {
     public:
         // Ctor. Adds this object to the list of registrars.
-        RegistrarBase() noexcept try {
-            if (!registrars_) {
-                registrars_.reset(new std::vector<RegistrarBase<BASE>*>);
-            }
-            registrars_->push_back(this);
-        } catch(...) {
-            // Probably out-of-memory or similar.
-            // There's nothing we can do, but we don't let the
-            // exception escape b/c we're initializing a global
-            // static object, and there's no other way to catch
-            // it.
+        RegistrarBase() noexcept {
+            try {
+                if (!registrars_) {
+                    registrars_.reset(new std::vector<RegistrarBase<BASE>*>);
+                }
+                registrars_->push_back(this);
+            } catch(...) {}
         }
 
         // Rule of 5
@@ -75,7 +71,7 @@ namespace linktimeplugin {
     private:
         // Pointers to the registrar objects (one per registered
         // plug-in class).
-        static std::unique_ptr<std::vector<RegistrarBase<BASE>*>>registrars_;
+        static std::unique_ptr<std::vector<RegistrarBase<BASE>*>> registrars_;
     };
 
     /*
