@@ -54,7 +54,7 @@ namespace linktimeplugin {
         virtual BASE& operator()() = 0;
 
         typedef std::vector<BASE*> PluginColl;
-        typedef std::vector<RegistrarBase<BASE>*> RegistarColl;
+        typedef std::vector<RegistrarBase<BASE>*> RegistrarColl;
         
         // Returns all registrars.
         static PluginColl plugins() {
