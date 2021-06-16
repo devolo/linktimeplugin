@@ -72,31 +72,6 @@ namespace linktimeplugin {
     };
 }
 
-/**
- * Register one plug-in class.
- * Use this once for every plug-in class that's derived from the
- * plug-in base class.
- *
- * x is the name of the derived plug-in class.
- *
- * Example:
- *
- *      // Base class
- *      class PluginBase {
- *      public:
- *          using Base = PluginBase;
- *          virtual void DoSomething() = 0;
- *      };
- *
- *      // Plug-in class
- *      class Plugin: public PluginBase {
- *          void DoSomething() override { ... }
- *      };
- *
- *      // Register the plug-in class
- *      REGISTER_PLUGIN(Plugin);
- */
-//#define REGISTER_PLUGIN(x) static linktimeplugin::Registrar<x> x##registrar
 // REGISTER_PLUGIN clearly indicates intent
 #define REGISTER_PLUGIN(x) static x x##Instance
 
