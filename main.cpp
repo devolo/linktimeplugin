@@ -3,21 +3,21 @@
  * @version 1.0.0
  * @author Wolfram Rösler
  * @date 2018-06-25
+ * change:
+ * 2021-05-25: exercise iterator interface (janos.vaczi@gmail.com)
  * @copyright MIT license
  */
 
 #include <iostream>
 #include <string>
+#include <algorithm>
 #include "linktimeplugin.hpp"
 
 namespace {
     // Define the plug-in base class.
     // In a real application, this would be in a header file.
-    class PluginBase {
+    DEFINE_PLUGIN_INTERFACE(PluginBase) {
     public:
-        // Make the class known to the registrar
-        using Base = PluginBase;
-
         // Define the functions that are to be implemented by
         // the plug-ins. Must be pure virtual and public in the
         // base class. Can have any name and signature.
@@ -74,9 +74,19 @@ namespace {
 // to see any of the plug-in classes (Cat, Dog, ...), only
 // the plug-in base class (PluginBase).
 int main() {
-    for (const auto animal : linktimeplugin::plugins<PluginBase>()) {
+    for (const auto animal : PluginBase::getPlugins()) {
         std::cout << animal->name() << ": " << animal->sound() << '\n';
     }
+    std::cout << "again with iterators\n";
+    for (auto it = PluginBase::begin(); it != PluginBase::end(); ++it) {
+        std::cout << (*it)->name() << ": " << (*it)->sound() << '\n';
+    };
+    std::cout << "again with for_each\n";
+    std::for_each(PluginBase::begin(), PluginBase::end(),
+        [](PluginBase* x) {
+            std::cout << x->name() << ": " << x->sound() << '\n';
+        }
+    );
 
     return EXIT_SUCCESS;
 }
