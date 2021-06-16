@@ -133,8 +133,8 @@ for (const auto plugin : PluginBase::getPlugins()) {
 std::for_each(
         PluginBase::begin(),
         PluginBase::end(),
-        [](const auto x) {
-            (*x)->dosomething();
+        [](PluginBase* x) {
+            x->dosomething();
         });
 ```
 
