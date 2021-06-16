@@ -19,16 +19,16 @@
  * Usage:
  *
  *  1. Define a base class for your plug-ins.
- *  2. In this plug-in base class, add "public: using Base=x",
- *     where x is the name of the plug-in base class.
- *  3. For every plug-in, derive a class from the base class.
- *  4. For every such class, invoke REGISTER_PLUGIN(x), where x is the
+ *     You can DEFINE_PLUGIN_INTERFACE(className)
+ *  2. For every plug-in, derive a class from the base class.
+ *  3. For every such class, invoke REGISTER_PLUGIN(x), where x is the
  *     name of the derived plug-in class.
- *  5. To retrieve a list of all plug-ins, invoke linktimeplugin::plugins<x>(),
- *     where x is the name of the plug-in base class. This function
- *     returns a pointer to an instance of every plug-in class.
- *  6. Alternatively iterate the RegistrarBase objects with begin()/end() iterators.
- *     Don't forget to downcast like (*it)()
+ *  4. To retrieve a list of all plug-ins, invoke 
+ *     x::getPlugins(), where x is the name of the plug-in base class.
+ *     This function returns a collection of pointer to an instance of
+ *     every plug-in class.
+ *  5. Alternatively iterate the plug-in objects with 
+ *     x::begin() and x::end() iterators.
  */
 namespace linktimeplugin {
     /*

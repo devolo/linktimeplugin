@@ -112,9 +112,8 @@ Overview:
 #include <linktimeplugin.hpp>
 
 // In a header file:
-class PluginBase {
+class PluginBase : public RegistrarBase<PluginBase> {
 public:
-    using Base = PluginBase;
     virtual void dosomething() = 0;
 };
 
@@ -127,15 +126,15 @@ namespace {
 }
 
 // In the application:
-for (const auto plugin : linktimeplugin::plugins<PluginBase>()) {
+for (const auto plugin : PluginBase::getPlugins()) {
     plugin->dosomething();
 }
 // OR
 std::for_each(
-        linktimeplugin::RegistrarBase<PluginBase>::begin(),
-        linktimeplugin::RegistrarBase<PluginBase>::end(),
+        PluginBase::begin(),
+        PluginBase::end(),
         [](const auto x) {
-            (*x)().dosomething();
+            (*x)->dosomething();
         });
 ```
 

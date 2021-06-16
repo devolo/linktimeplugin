@@ -74,15 +74,19 @@ namespace {
 // to see any of the plug-in classes (Cat, Dog, ...), only
 // the plug-in base class (PluginBase).
 int main() {
-    typedef linktimeplugin::RegistrarBase<PluginBase> Plugins;
-    for (const auto animal : Plugins::getPlugins()) {
+    for (const auto animal : PluginBase::getPlugins()) {
         std::cout << animal->name() << ": " << animal->sound() << '\n';
     }
     std::cout << "again with iterators\n";
-    for (auto it = Plugins::begin(); it != Plugins::end(); ++it) {
-        // Notice the downcast with function operator!
+    for (auto it = PluginBase::begin(); it != PluginBase::end(); ++it) {
         std::cout << (*it)->name() << ": " << (*it)->sound() << '\n';
     };
-    
+    std::cout << "again with for_each\n";
+    std::for_each(PluginBase::begin(), PluginBase::end(),
+        [](PluginBase* x) {
+            std::cout << x->name() << ": " << x->sound() << '\n';
+        }
+    );
+
     return EXIT_SUCCESS;
 }
