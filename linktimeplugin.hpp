@@ -18,8 +18,8 @@
  *
  * Usage:
  *
- *  1. Define a base class for your plug-ins.
- *     You can DEFINE_PLUGIN_INTERFACE(className)
+ *  1. Define an abstract base class for your plug-ins as an interface,
+ *     derived from RegistrarBase. You can use DEFINE_PLUGIN_INTERFACE(YourPluginInterfaceName)
  *  2. For every plug-in, derive a class from the base class.
  *  3. For every such class, invoke REGISTER_PLUGIN(x), where x is the
  *     name of the derived plug-in class.
@@ -33,7 +33,7 @@
 namespace linktimeplugin {
     /*
      * Base class for plug-in registrars. A registrar is an intermediate
-     * class that manages the registration of one plug-inclass (which
+     * class that manages the registration of one plug-in class (which
      * is derived from the common plug-in base class).
      */
     template<typename Plugin>
