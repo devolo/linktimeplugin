@@ -5,6 +5,7 @@
  * @date 2018-06-25
  * change:
  * 2021-05-25: registrars vector to static and added iterator interface (janos.vaczi@gmail.com)
+ * 2021-06-16: Removed intermediate class Registrar and doing the downcasting in RegistrarBase
  * @copyright MIT license
  */
 
@@ -39,13 +40,14 @@ namespace linktimeplugin {
     class RegistrarBase {
     public:
         // Ctor. Adds this object to the list of registrars.
-        RegistrarBase() noexcept try {
-            registerPlugin(this);
-        } catch (...) {            
-        }
+        RegistrarBase() noexcept
+            try {
+                registerPlugin(this);
+            } catch (...) {}
 
         // Rule of 5
         virtual ~RegistrarBase() = default;
+        // non-copiable and non-moveable
         RegistrarBase(const RegistrarBase&) = delete;
         RegistrarBase(RegistrarBase&&) = delete;
         void operator=(const RegistrarBase&) = delete;
@@ -55,10 +57,17 @@ namespace linktimeplugin {
         typedef typename Collection::const_iterator const_iterator;
         
         // provide only const data for user
-        static const_iterator begin() { return registrars().begin(); }
-        static const_iterator end() { return registrars().end(); }
+        static const_iterator begin() {
+            return registrars().begin();
+        }
 
-        static const Collection& getPlugins() { return registrars(); }
+        static const_iterator end() {
+            return registrars().end();
+        }
+
+        static const Collection& getPlugins() {
+            return registrars();
+        }
 
     private:
         void registerPlugin(RegistrarBase<Plugin>* reg) {
@@ -72,7 +81,7 @@ namespace linktimeplugin {
     };
 }
 
-// REGISTER_PLUGIN clearly indicates intent
+// REGISTER_PLUGIN clearly indicates registration intent
 #define REGISTER_PLUGIN(x) static x x##Instance
 
 // DEFINE_PLUGIN_INTERFACE avoids repetition of plugin class name
