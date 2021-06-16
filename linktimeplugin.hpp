@@ -35,12 +35,13 @@ namespace linktimeplugin {
      * class that manages the registration of one plug-inclass (which
      * is derived from the common plug-in base class).
      */
-    template<typename BASE>
+    template<typename Plugin>
     class RegistrarBase {
     public:
         // Ctor. Adds this object to the list of registrars.
-        RegistrarBase() noexcept {
-            registrars().push_back(this);
+        RegistrarBase() noexcept try {
+            registerPlugin(this);
+        } catch (...) {            
         }
 
         // Rule of 5
@@ -50,66 +51,25 @@ namespace linktimeplugin {
         void operator=(const RegistrarBase&) = delete;
         void operator=(RegistrarBase&&) = delete;
 
-        // Implemented by the derived registrar class.
-        virtual BASE& operator()() = 0;
+        typedef std::vector<Plugin*> Collection;
+        typedef typename Collection::const_iterator const_iterator;
+        
+        // provide only const data for user
+        static const_iterator begin() { return registrars().begin(); }
+        static const_iterator end() { return registrars().end(); }
 
-        typedef std::vector<BASE*> PluginColl;
-        typedef std::vector<RegistrarBase<BASE>*> RegistarColl;
-        
-        // Returns all registrars.
-        static PluginColl plugins() {
-            PluginColl ret;
-            for(auto r : registrars()) {
-                ret.push_back(&(*r)());
-            }
-            return ret;
-        }
-        // Use (*begin())() to get BASE object!
-        static auto begin() {
-            return registrars().begin();
-        }
-        
-        static auto end() {
-            return registrars().end();
-        }
-        
+        static const Collection& getPlugins() { return registrars(); }
+
     private:
-        static RegistarColl& registrars() {
-            static RegistarColl regs;
-            return regs;
+        void registerPlugin(RegistrarBase<Plugin>* reg) {
+            registrars().push_back(static_cast<Plugin*>(reg));
+        }
+
+        static Collection& registrars() {
+            static Collection singleton;
+            return singleton;
         }
     };
-
-    /*
-     * Derived registrar class.
-     * PLUGIN is the plug-in class (derived from the plug-in base class).
-     */
-    template<typename PLUGIN>
-    class Registrar : public RegistrarBase<typename PLUGIN::Base> {
-        PLUGIN plugin_;
-
-        typename PLUGIN::Base& operator()() override {
-            return plugin_;
-        }
-    };
-
-    /**
-     * Get pointers to instances of all registered plug-in classes.
-     *
-     * T is the plug-in base class.
-     *
-     * Example: (MyBase is the plug-in base class, DoSomething is a pure
-     * virtual function in the plug-in base class, implemented by the
-     * derived plug-in classes)
-     *
-     *      for (auto& p : linktimeplugin::plugins<MyBase>()) {
-     *          p->DoSomething();
-     *      }
-     */
-    template<typename T>
-    std::vector<T*> plugins() {
-        return RegistrarBase<T>::plugins();
-    }
 }
 
 /**
@@ -136,4 +96,9 @@ namespace linktimeplugin {
  *      // Register the plug-in class
  *      REGISTER_PLUGIN(Plugin);
  */
-#define REGISTER_PLUGIN(x) static linktimeplugin::Registrar<x> x##registrar
+//#define REGISTER_PLUGIN(x) static linktimeplugin::Registrar<x> x##registrar
+// REGISTER_PLUGIN clearly indicates intent
+#define REGISTER_PLUGIN(x) static x x##Instance
+
+// DEFINE_PLUGIN_INTERFACE avoids repetition of plugin class name
+#define DEFINE_PLUGIN_INTERFACE(x) class x : public linktimeplugin::RegistrarBase<x>

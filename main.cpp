@@ -16,11 +16,8 @@
 namespace {
     // Define the plug-in base class.
     // In a real application, this would be in a header file.
-    class PluginBase {
+    DEFINE_PLUGIN_INTERFACE(PluginBase) {
     public:
-        // Make the class known to the registrar
-        using Base = PluginBase;
-
         // Define the functions that are to be implemented by
         // the plug-ins. Must be pure virtual and public in the
         // base class. Can have any name and signature.
@@ -77,17 +74,15 @@ namespace {
 // to see any of the plug-in classes (Cat, Dog, ...), only
 // the plug-in base class (PluginBase).
 int main() {
-    for (const auto animal : linktimeplugin::plugins<PluginBase>()) {
+    typedef linktimeplugin::RegistrarBase<PluginBase> Plugins;
+    for (const auto animal : Plugins::getPlugins()) {
         std::cout << animal->name() << ": " << animal->sound() << '\n';
     }
     std::cout << "again with iterators\n";
-    std::for_each(
-        linktimeplugin::RegistrarBase<PluginBase>::begin(),
-        linktimeplugin::RegistrarBase<PluginBase>::end(),
-        [](const auto x) {
-            // Notice the downcast with function operator!
-            std::cout << (*x)().name() << ": " << (*x)().sound() << '\n';
-        });
+    for (auto it = Plugins::begin(); it != Plugins::end(); ++it) {
+        // Notice the downcast with function operator!
+        std::cout << (*it)->name() << ": " << (*it)->sound() << '\n';
+    };
     
     return EXIT_SUCCESS;
 }
