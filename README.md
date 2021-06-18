@@ -85,6 +85,14 @@ void showUsage(char** argv) {
 
 So, when you add a new subcommand, it immediately becomes available on the command line (because `main` picks it up), *and* in the usage message (because `showUsage` picks it up), with no need to modify either of the two.
 
+## Same source, multiple executables
+
+Sometimes you want to build more than one executable from the same source code, where each executable contains a certain combination of the available plug-ins only. Or maybe you're building on various platforms, and certain plug-ins are available only on some of them (and cannot even be compiled on others).
+
+Note that the "if-else chain" solution shown above will work in these cases only with a lot of nasty preprocessor conditionals.
+
+Link-time plug-ins introduce a clean separation between the application core and the plug-in code. The decision which plug-ins go into which executable takes place in the build configuration and need not be replicated anywhere in the source code.
+
 ## How it works
 
 All plug-ins of the same type (=that use the same API) are derived from a common base class. A "registrar object" is created for each such plug-in class that creates an instance of the plug-in class in its constructor. This instance is made available through a public template function, which the application uses to iterate over the plug-ins.
@@ -133,14 +141,18 @@ for (const auto plugin : linktimeplugin::plugins<PluginBase>()) {
 
 ```
 
-Complete example: `main.cpp`. To build and run the example program:
+This repository contains a complete demonstration program. A plug-in base class is defined in `demo.hpp`, and three plug-ins are defined in `demo-cat.cpp`, `demo-dog.cpp`, and `demo-bird.cpp`. Note that these three files don't export any public symbols (everything is inside an anonymous namespace). A single main function (`demo-main.cpp`) is used with various combinations of these plug-ins to build three demo programs (`demo1`, `demo2`, and `demo3`). The selection which demo program contains which plug-in takes place in the build configuration (`CMakeLists.txt`).
+
+To build and run the example programs:
 
 ```
 $ mkdir build
 $ cd build
 $ cmake ..
 $ make
-$ ./linktimeplugin
+$ ./demo1
+$ ./demo2
+$ ./demo3
 ```
 
 ---
