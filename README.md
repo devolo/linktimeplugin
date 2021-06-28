@@ -2,6 +2,8 @@
 
 C++11 header-only library for registration and management of link-time plug-ins.
 
+Here's a talk that introduces the motivation and implementation of link-time plug-ins: https://youtu.be/BxOiUv6bEqU
+
 ## What is it?
 
 In order to achieve a modular structure, many applications use a plug-in based architecture that cleanly separates the core logic from the implementation of individual drivers/handlers that do the actual work. For example:
